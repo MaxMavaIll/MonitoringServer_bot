@@ -1,0 +1,27 @@
+###################################################################################################
+#                                             MONITORING                                          #
+###################################################################################################
+
+
+NAME_SERVER="173"
+
+
+# Server
+[check_disk]
+enable = false
+
+path = ['/']
+
+# Telegram Bot 
+[telegram_bot]
+
+enable = false
+interest = 90
+
+TOKEN=''
+
+chat_id=[954536460]
+
+[logging]
+max_log_size = 10   # 1 = 1 MB
+backup_count = 4
