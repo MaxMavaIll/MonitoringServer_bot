@@ -1,4 +1,4 @@
-import requests, toml, logging
+import requests, toml, logging, json
 from logging.handlers import RotatingFileHandler
 
 config_toml = toml.load("config.toml")
@@ -16,6 +16,7 @@ class BotTelegram():
         self.token = token
 
     def send_message(self, message: str, chat_id: int|str):
+        id = self.get_id()
         url = f'https://api.telegram.org/bot{self.token}/sendMessage'
         # url = url + f'/sendMessage?chat_id={chat_id}&text={message}'
         data = {'chat_id': chat_id, 'text': message}
@@ -23,17 +24,21 @@ class BotTelegram():
             response = requests.post(url=url, data=data, timeout=5)
 
             if response.status_code == 200:
-                log.info(f"Повідомлення було відправиленно успішно код {response.status_code}")
-                log.debug(f"Отримано через папит:\n{response.text}")
+                log.info(f"ID: {id} -> Повідомлення було відправиленно успішно код {response.status_code}")
+                log.debug(f"ID: {id} -> Отримано через папит:\n{response.text}")
                 return True
             else:
-                log.error(f"Повідомлення отримало код {response.status_code}")
+                log.error(f"ID: {id} -> Повідомлення отримало код {response.status_code}")
                 log.error(response.text)
-                log.error(f"url: {url}")
-                log.error(f"data: {data}")
+                log.error(f"ID: {id} -> url: {url}")
+                log.error(f"ID: {id} -> data: {data}")
                 return False
         except:
-            log.exception("Telegram bot Error")
+            log.exception(f"ID: {id} -> Telegram bot Error")
             return False
             
+    def get_id(self):
+        with open("id.json") as file:
+            ID = json.load(file)['id']
         
+        return ID
