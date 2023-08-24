@@ -1,10 +1,11 @@
-import psutil, toml, logging, json
+import psutil, toml, logging, json, os
 from logging.handlers import RotatingFileHandler
 from Bots.telegram_bot import BotTelegram
 
-ram = psutil.virtual_memory()
-disk = psutil.disk_usage('/')
+from WorkJson import WorkWithJson
+
 config_toml = toml.load("config.toml")
+work_json = WorkWithJson("id.json")
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -14,32 +15,35 @@ handler2.setFormatter(formatter2)
 log.addHandler(handler2)
 
 
-bot_telegram = BotTelegram(token=config_toml["telegram_bot"]["TOKEN"])
+bot_telegram = BotTelegram()
 
 class MonitoringServer():
 
     def GetDiskParameters(self) -> list:
         list_disks = list()
+        path_list = list()
+        id = work_json.get_json()["id"]
         for path in config_toml['check_disk']['path']:
-            disk = psutil.disk_usage(path=path)
+            if os.path.exists(path):
+                disk = psutil.disk_usage(path=path)
+                log.info(path)
             
-            list_disks.append(disk)
+                list_disks.append(disk)
+                path_list.append(path)
+            else:
+                log.warn(f"ID: {id} -> Path not found: {path}\nPerhaps you forgot to add the path to the docker-compose.yml.")
 
-        log.info("ID: {id} -> Отримано дані: success done")
+        log.info(f"ID: {id} -> Отримано дані: success done")
 
-        return list_disks
+        return list_disks, path_list
 
-    def get_id(self):
-        with open("id.json") as file:
-            ID = json.load(file)['id']
-        
-        return ID
+
 
 server = MonitoringServer()
 
 def Sever_disk(list_disk_param: list) -> tuple:
 
-    id = server.get_id()
+    id = work_json.get_json()["id"]
     total = list()
     used = list()
     free = list()
@@ -59,10 +63,10 @@ def Sever_disk(list_disk_param: list) -> tuple:
 
 def check_server():
     try: 
-        id = server.get_id()
+        id = work_json.get_json()["id"]
 
         log.info(f"ID: {id} -> Отримую дані з диска")
-        disk_list = server.GetDiskParameters()
+        disk_list, path_list = server.GetDiskParameters()
 
         log.info(f"ID: {id} -> Я відсортовую результат")
         total, used, free, percent = Sever_disk(disk_list)
@@ -70,20 +74,22 @@ def check_server():
 
         for index in range(len(percent)):
 
-            if percent[index] >= config_toml['telegram_bot']['interest']:
-                log.info(f"ID: {id} -> Памʼять закінчується на {config_toml['check_disk']['path'][index]} залишилося {100 - percent[index]}%")
-                massage = f"Sever: 173\n" + \
-                        f"Path: {config_toml['check_disk']['path'][index]} \n" + \
+            massage = f"Sever: 173\n" + \
+                        f"Path: {path_list[index]} \n" + \
                         f"Memory problem {percent[index]}%\n" + \
-                        f"Date:\n\ttotal: {total[index]}\n\tused: {used[index]}\n\tfree: {free[index]} \n" 
-                        # f"Date: {total[index]} {used[index]} {free[index]}"
-                
+                        f"Date:\n\ttotal: {total[index]}\n\tused: {used[index]}\n\tfree: {free[index]} \n"
+     
+            if percent[index] >= config_toml['telegram_bot']['interest']:
+                log.info(f"ID: {id} -> Памʼять закінчується на {path_list[index]} залишилося {100 - percent[index]}%")
                 if config_toml['telegram_bot']['enable']:
                     for id in config_toml['telegram_bot']['chat_id']:
-                        if not bot_telegram.send_message(message=massage, chat_id=id):
+                        if not bot_telegram.send_message(
+                            message=massage,
+                            chat_id=id):
                             log.info(f"ID: {id} -> Не відправленно дивитись в Bots.telegram_bot.log")
 
-                log.info(massage)
+            
+            log.info(massage)
 
     except:
         log.exception(f"ID: {id} -> Зпапит на отримання памʼяті дотримав помилку")

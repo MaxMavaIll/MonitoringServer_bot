@@ -2,5 +2,5 @@ config.toml
 __pycache__/
 venv/
 Grafana/
-Dockerfile
 .save
+Nodes/

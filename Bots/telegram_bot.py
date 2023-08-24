@@ -1,7 +1,10 @@
 import requests, toml, logging, json
 from logging.handlers import RotatingFileHandler
 
+from WorkJson import WorkWithJson
+
 config_toml = toml.load("config.toml")
+work_json = WorkWithJson("id.json")
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -12,12 +15,10 @@ log.addHandler(handler2)
 
 class BotTelegram():
 
-    def __init__(self, token: str) -> None:
-        self.token = token
 
     def send_message(self, message: str, chat_id: int|str):
-        id = self.get_id()
-        url = f'https://api.telegram.org/bot{self.token}/sendMessage'
+        id = work_json.get_json()["id"]
+        url = f'https://api.telegram.org/bot{config_toml["telegram_bot"]["TOKEN"]}/sendMessage'
         # url = url + f'/sendMessage?chat_id={chat_id}&text={message}'
         data = {'chat_id': chat_id, 'text': message}
         try:
@@ -37,8 +38,3 @@ class BotTelegram():
             log.exception(f"ID: {id} -> Telegram bot Error")
             return False
             
-    def get_id(self):
-        with open("id.json") as file:
-            ID = json.load(file)['id']
-        
-        return ID

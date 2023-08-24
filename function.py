@@ -12,7 +12,7 @@ log.addHandler(handler2)
 
 def runtime_check(times: str, name: str, id: int) -> bool:
     time_now = datetime.datetime.now().time()
-    log.info(f"Name service: {name} | Get {times} now time {time_now}")
+    log.info(f"ID: {id} -> Name service: {name} | Get {times} now time {time_now}")
 
     if times == '':
         return True
@@ -20,10 +20,10 @@ def runtime_check(times: str, name: str, id: int) -> bool:
     elif times != '':
         
         for time in times.split(','):
-            log.debug(f"{datetime.timedelta()} <= {datetime.timedelta(hours=time_now.hour, minutes=time_now.minute) - datetime.timedelta(hours=int(time))} <= {datetime.timedelta(minutes=config_toml['time'])}")
+            log.debug(f"ID: {id} -> {datetime.timedelta()} <= {datetime.timedelta(hours=time_now.hour, minutes=time_now.minute) - datetime.timedelta(hours=int(time))} <= {datetime.timedelta(minutes=config_toml['time'])}")
             
             if datetime.timedelta() <= datetime.timedelta(hours=time_now.hour, minutes=time_now.minute) - datetime.timedelta(hours=int(time))  <= datetime.timedelta(minutes=config_toml['time']):
-                log.info(f"Name service: {name} | Get True")
+                log.info(f"ID: {id} -> Name service: {name} | Get True")
                 return True
     
     log.info(f"ID: {id} -> Name service: {name} | Get False")
