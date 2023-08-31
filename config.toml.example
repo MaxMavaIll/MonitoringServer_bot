@@ -6,19 +6,34 @@
 NAME_SERVER = "173"
 
 # 1 == 1 хв
-time = 10 
-
+time = 120 
 
 #######################################################################
- ###                           Logging                             ###
+###                           Logging                               ###
 #######################################################################
 
 [logging]
+
 # 1 = 1 MB
-max_log_size = 10  
+max_log_size = 5
 backup_count = 1
 
+#######################################################################
+###                     Telegram Bot Config                         ###
+#######################################################################
 
+[telegram_bot]
+
+enable = false
+interest = 50
+
+TOKEN=''
+
+TOKEN_SERVER = ''
+TOKEN_PROPOSALS = ''
+TOKEN_ERROR = ''
+
+chat_id=[42535234]
 
 #######################################################################
 ###                     Server Monitoring                           ###
@@ -29,22 +44,23 @@ enable = false
 
 path = ['/']
 
-
 # для конкретного часу запуску, якщo time = '' це значить він -
 # буде запускатися разом з основним часом
-time = '' 
-
+time = ''
 
 
 #######################################################################
-###                     Telegram Bot Config                         ###
+###                         Proposals                               ###
 #######################################################################
-
-[telegram_bot]
+[proposal]
 
 enable = false
-interest = 90
+time = ''
+time_sleep = 1
+path = '/root/go/bin'
 
-TOKEN=''
-
-chat_id=["42535234"]
+#exemple
+#[proposal.network.Stargaze]
+#bin="starsd"
+#node="https://stargaze-rpc.polkachu.com:443"
+#explorer="https://www.mintscan.io/stargaze/proposals/"

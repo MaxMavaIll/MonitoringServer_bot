@@ -3,4 +3,4 @@ __pycache__/
 venv/
 Grafana/
 .save
-Nodes/
+Nodes/Vote

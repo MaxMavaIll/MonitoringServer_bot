@@ -1,4 +1,4 @@
-import psutil, toml, logging, json, os
+import psutil, toml, logging, json, os, traceback
 from logging.handlers import RotatingFileHandler
 from Bots.telegram_bot import BotTelegram
 
@@ -19,10 +19,14 @@ bot_telegram = BotTelegram()
 
 class MonitoringServer():
 
+    def __init__(self, log_id: int) -> None:
+        self.log_id = log_id
+
     def GetDiskParameters(self) -> list:
+        log.info(f"ID: {id} -> Отримую дані з диска")
         list_disks = list()
         path_list = list()
-        id = work_json.get_json()["id"]
+
         for path in config_toml['check_disk']['path']:
             if os.path.exists(path):
                 disk = psutil.disk_usage(path=path)
@@ -31,45 +35,42 @@ class MonitoringServer():
                 list_disks.append(disk)
                 path_list.append(path)
             else:
-                log.warn(f"ID: {id} -> Path not found: {path}\nPerhaps you forgot to add the path to the docker-compose.yml.")
+                log.warn(f"ID: {self.log_id} -> Path not found: {path}\nPerhaps you forgot to add the path to the docker-compose.yml.")
 
-        log.info(f"ID: {id} -> Отримано дані: success done")
+        log.info(f"ID: {self.log_id} -> Отримано дані: success done")
 
         return list_disks, path_list
 
+    def Sever_disk_sorted(self, list_disk_param: list) -> tuple:
+        log.info(f"ID: {self.log_id} -> Я відсортовую результат")
 
+        total = list()
+        used = list()
+        free = list()
+        percent = list()
 
-server = MonitoringServer()
-
-def Sever_disk(list_disk_param: list) -> tuple:
-
-    id = work_json.get_json()["id"]
-    total = list()
-    used = list()
-    free = list()
-    percent = list()
-
-    for disk in list_disk_param:
-        total.append( int( disk[0] / (1024 ** 3) ) )
-        used.append( int( disk[1] / (1024 ** 3) ) )
-        free.append( int( disk[2] / (1024 ** 3) ) )
-        percent.append(disk[3])
-    
-    log.debug(f"ID: {id} -> Відсортований результат:\ntotal: {total}\nused: {used}\nfree: {free}\npercent: {percent}")
-    
-    log.info(f"ID: {id} -> Сортування: success done")
-    return tuple(total), tuple(used), tuple(free), tuple(percent)
+        for disk in list_disk_param:
+            total.append( int( disk[0] / (1024 ** 3) ) )
+            used.append( int( disk[1] / (1024 ** 3) ) )
+            free.append( int( disk[2] / (1024 ** 3) ) )
+            percent.append(disk[3])
+        
+        log.debug(f"ID: {self.log_id} -> Відсортований результат:\ntotal: {total}\nused: {used}\nfree: {free}\npercent: {percent}")
+        
+        log.info(f"ID: {self.log_id} -> Сортування: success done")
+        return tuple(total), tuple(used), tuple(free), tuple(percent)
     
 
 def check_server():
     try: 
         id = work_json.get_json()["id"]
 
-        log.info(f"ID: {id} -> Отримую дані з диска")
+        server = MonitoringServer(id)
+        
         disk_list, path_list = server.GetDiskParameters()
 
-        log.info(f"ID: {id} -> Я відсортовую результат")
-        total, used, free, percent = Sever_disk(disk_list)
+        
+        total, used, free, percent = server.Sever_disk_sorted(disk_list)
         
 
         for index in range(len(percent)):
@@ -85,7 +86,8 @@ def check_server():
                     for id in config_toml['telegram_bot']['chat_id']:
                         if not bot_telegram.send_message(
                             message=massage,
-                            chat_id=id):
+                            chat_id=id,
+                            type_bot_token="SERVER"):
                             log.info(f"ID: {id} -> Не відправленно дивитись в Bots.telegram_bot.log")
 
             
@@ -93,4 +95,10 @@ def check_server():
 
     except:
         log.exception(f"ID: {id} -> Зпапит на отримання памʼяті дотримав помилку")
+        message = f"<b>Server\nlog_id: {id}</b> \n\n "
+        message += traceback.format_exc()
+
+        if config_toml['telegram_bot']['enable']:
+                for id in config_toml['telegram_bot']['chat_id']:
+                            bot_telegram.send_message(message=message, chat_id=id, type_bot_token="TOKEN_ERROR")
 

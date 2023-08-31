@@ -3,6 +3,8 @@ from logging.handlers import RotatingFileHandler
 
 import function
 from Server.server import check_server
+# from Nodes.Vote.CosmosCLI import Vote_Active_Proposal
+from Nodes.Proposer.proposal import Proposer
 from WorkJson import WorkWithJson
 
 config_toml = toml.load('config.toml')
@@ -29,10 +31,15 @@ def main():
 
         if config_toml['check_disk']['enable'] and function.runtime_check(config_toml['check_disk']['time'], 'Check_Disk', ID): 
             check_server()
+        
+        if config_toml['proposal']['enable'] and function.runtime_check(config_toml['proposal']['time'], 'Proposal', ID):
+            Proposer()
 
+        # if config_toml['vote']['enable']:
+        #     Vote_Active_Proposal()
 
         finish_time =time.time() - start_time
-        log.info(f"ID: {ID} - Час виконання: {finish_time}")
+        log.info(f"ID: {ID} -> Час виконання: {finish_time}")
 
         ID += 1
         work_json.set_json({'id': ID})

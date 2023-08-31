@@ -16,25 +16,31 @@ log.addHandler(handler2)
 class BotTelegram():
 
 
-    def send_message(self, message: str, chat_id: int|str):
-        id = work_json.get_json()["id"]
-        url = f'https://api.telegram.org/bot{config_toml["telegram_bot"]["TOKEN"]}/sendMessage'
-        # url = url + f'/sendMessage?chat_id={chat_id}&text={message}'
-        data = {'chat_id': chat_id, 'text': message}
-        try:
-            response = requests.post(url=url, data=data, timeout=5)
+    def send_message(self, message: str, chat_id: int|str, type_bot_token: str = "TOKEN"):
+        """
+        type_bot_token | TOKEN_ERROR, TOKEN_PROPOSALS, TOKEN_SERVER, TOKEN_NODE
+        """
+        
+        TOKEN = config_toml["telegram_bot"][type_bot_token] if config_toml["telegram_bot"][type_bot_token] != '' else config_toml["telegram_bot"][f"TOKEN"]
 
-            if response.status_code == 200:
-                log.info(f"ID: {id} -> Повідомлення було відправиленно успішно код {response.status_code}")
-                log.debug(f"ID: {id} -> Отримано через папит:\n{response.text}")
-                return True
-            else:
-                log.error(f"ID: {id} -> Повідомлення отримало код {response.status_code}")
-                log.error(response.text)
-                log.error(f"ID: {id} -> url: {url}")
-                log.error(f"ID: {id} -> data: {data}")
-                return False
-        except:
-            log.exception(f"ID: {id} -> Telegram bot Error")
+        id = work_json.get_json()["id"]
+        url = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
+        # url = url + f'/sendMessage?chat_id={chat_id}&text={message}'
+        data = {'chat_id': chat_id, 'text': message, 'parse_mode': 'HTML'}
+        
+        response = requests.post(url=url, data=data, timeout=5)
+
+        if response.status_code == 200:
+            log.info(f"ID: {id} -> Повідомлення було відправиленно успішно код {response.status_code}")
+            log.debug(f"ID: {id} -> Отримано через папит:\n{response.text}")
+            return True
+        else:
+            message = f"ID: {id} -> Повідомлення отримало код {response.status_code}"
+            log.error(f"ID: {id} -> Повідомлення отримало код {response.status_code}")
+            log.error(response.text)
+            log.error(f"ID: {id} -> url: {url}")
+            log.error(f"ID: {id} -> data: {data}")
+
             return False
-            
+
+        
