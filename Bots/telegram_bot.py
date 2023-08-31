@@ -20,7 +20,7 @@ class BotTelegram():
         """
         type_bot_token | TOKEN_ERROR, TOKEN_PROPOSALS, TOKEN_SERVER, TOKEN_NODE
         """
-        
+        log.info(f"Відправляю повідомлення -> {chat_id}")
         TOKEN = config_toml["telegram_bot"][type_bot_token] if config_toml["telegram_bot"][type_bot_token] != '' else config_toml["telegram_bot"][f"TOKEN"]
 
         id = work_json.get_json()["id"]

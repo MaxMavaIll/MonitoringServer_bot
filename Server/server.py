@@ -23,7 +23,7 @@ class MonitoringServer():
         self.log_id = log_id
 
     def GetDiskParameters(self) -> list:
-        log.info(f"ID: {id} -> Отримую дані з диска")
+        log.info(f"ID: {self.log_id} -> Отримую дані з диска")
         list_disks = list()
         path_list = list()
 
@@ -63,9 +63,9 @@ class MonitoringServer():
 
 def check_server():
     try: 
-        id = work_json.get_json()["id"]
+        log_id = work_json.get_json()["id"]
 
-        server = MonitoringServer(id)
+        server = MonitoringServer(log_id)
         
         disk_list, path_list = server.GetDiskParameters()
 
@@ -81,21 +81,21 @@ def check_server():
                         f"Date:\n\ttotal: {total[index]}\n\tused: {used[index]}\n\tfree: {free[index]} \n"
      
             if percent[index] >= config_toml['telegram_bot']['interest']:
-                log.info(f"ID: {id} -> Памʼять закінчується на {path_list[index]} залишилося {100 - percent[index]}%")
+                log.info(f"ID: {log_id} -> Памʼять закінчується на {path_list[index]} залишилося {100 - percent[index]}%")
                 if config_toml['telegram_bot']['enable']:
                     for id in config_toml['telegram_bot']['chat_id']:
                         if not bot_telegram.send_message(
                             message=massage,
                             chat_id=id,
-                            type_bot_token="SERVER"):
-                            log.info(f"ID: {id} -> Не відправленно дивитись в Bots.telegram_bot.log")
+                            type_bot_token="TOKEN_SERVER"):
+                            log.info(f"ID: {log_id} -> Не відправленно дивитись в Bots.telegram_bot.log")
 
             
             log.info(massage)
 
     except:
-        log.exception(f"ID: {id} -> Зпапит на отримання памʼяті дотримав помилку")
-        message = f"<b>Server\nlog_id: {id}</b> \n\n "
+        log.exception(f"ID: {log_id} -> Зпапит на отримання памʼяті дотримав помилку")
+        message = f"<b>Server: {config_toml['NAME_SERVER']}\nlog_id: {log_id}</b> \n\n "
         message += traceback.format_exc()
 
         if config_toml['telegram_bot']['enable']:

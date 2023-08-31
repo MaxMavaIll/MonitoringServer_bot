@@ -11,7 +11,7 @@ services:  # Список сервісів (контейнерів), які бу
       - .:/app/
       - /etc/localtime:/etc/localtime:ro
       - /:/host-root
-      - ${Path_to_go_bin}:/root/go/
+      # - ${Path_to_go_bin}:/root/go/
     restart: unless-stopped
 
 

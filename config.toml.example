@@ -6,7 +6,7 @@
 NAME_SERVER = "173"
 
 # 1 == 1 хв
-time = 120 
+time = 10 
 
 #######################################################################
 ###                           Logging                               ###
@@ -25,7 +25,7 @@ backup_count = 1
 [telegram_bot]
 
 enable = false
-interest = 50
+interest = 90
 
 TOKEN=''
 
