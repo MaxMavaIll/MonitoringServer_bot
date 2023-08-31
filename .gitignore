@@ -4,3 +4,4 @@ venv/
 Grafana/
 .save
 Nodes/Vote
+docker-compose.yml
