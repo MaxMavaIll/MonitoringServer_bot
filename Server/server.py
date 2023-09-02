@@ -75,7 +75,7 @@ def check_server():
 
         for index in range(len(percent)):
 
-            massage = f"Sever: 173\n" + \
+            massage = f"Sever: {config_toml['NAME_SERVER']}\n" + \
                         f"Path: {path_list[index]} \n" + \
                         f"Memory problem {percent[index]}%\n" + \
                         f"Date:\n\ttotal: {total[index]}\n\tused: {used[index]}\n\tfree: {free[index]} \n"
