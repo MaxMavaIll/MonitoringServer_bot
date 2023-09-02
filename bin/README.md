@@ -1,4 +1,4 @@
-# Add bin
+# Add Binaries
 
 ### We recommend linking to the same information on disk to reduce memory usage. To do this, follow these instructions
 
