@@ -109,7 +109,9 @@ class Proposal:
                     f"Name: {data['content']['plan']['name']}"
 
         if explorer_url != '':
-            message += f"\n\n{explorer_url}{proposal_id}"        
+            message += f"\n\n{explorer_url}{proposal_id}" 
+
+        log.debug(f"ID: {self.log_id} {self.name_network} | MESSAGE -> {message}")       
             
         return message
             
@@ -123,12 +125,14 @@ class Proposal:
             reported: bool = False
             ) -> str:
         try:
+            log.debug(f"ID: {self.log_id} {self.name_network} | CMD -> {cmd}")
             cmd = cmd.split()
             p1 = subprocess.Popen(["echo", password], stdout=subprocess.PIPE)
             p2 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=p1.stdout)
             output = p2.communicate()
             p1.stdout.close()
             p2.stdout.close()
+            log.debug(f"ID: {self.log_id} {self.name_network} | ANSWER -> {output}")
             if output[0].decode('utf-8') != '':
                 return { 'ok': True, 'answer': output[0].decode('utf-8')}
             elif output[1].decode('utf-8') != '':

@@ -30,7 +30,7 @@ class MonitoringServer():
         for path in config_toml['check_disk']['path']:
             if os.path.exists(path):
                 disk = psutil.disk_usage(path=path)
-                log.info(path)
+                log.info(f"ID: {self.log_id} -> {path} is active")
             
                 list_disks.append(disk)
                 path_list.append(path)
@@ -64,12 +64,8 @@ class MonitoringServer():
 def check_server():
     try: 
         log_id = work_json.get_json()["id"]
-
-        server = MonitoringServer(log_id)
-        
+        server = MonitoringServer(log_id) 
         disk_list, path_list = server.GetDiskParameters()
-
-        
         total, used, free, percent = server.Sever_disk_sorted(disk_list)
         
 
@@ -79,7 +75,7 @@ def check_server():
                         f"Path: {path_list[index]} \n" + \
                         f"Memory problem {percent[index]}%\n" + \
                         f"Date:\n\ttotal: {total[index]}\n\tused: {used[index]}\n\tfree: {free[index]} \n"
-     
+
             if percent[index] >= config_toml['telegram_bot']['interest']:
                 log.info(f"ID: {log_id} -> Памʼять закінчується на {path_list[index]} залишилося {100 - percent[index]}%")
                 if config_toml['telegram_bot']['enable']:
@@ -91,7 +87,7 @@ def check_server():
                             log.info(f"ID: {log_id} -> Не відправленно дивитись в Bots.telegram_bot.log")
 
             
-            log.info(massage)
+            log.info(f"ID: {log_id} Server | Message -> {massage}")
 
     except:
         log.exception(f"ID: {log_id} -> Зпапит на отримання памʼяті дотримав помилку")

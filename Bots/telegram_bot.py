@@ -35,11 +35,10 @@ class BotTelegram():
             log.debug(f"ID: {id} -> Отримано через папит:\n{response.text}")
             return True
         else:
-            message = f"ID: {id} -> Повідомлення отримало код {response.status_code}"
             log.error(f"ID: {id} -> Повідомлення отримало код {response.status_code}")
             log.error(response.text)
-            log.error(f"ID: {id} -> url: {url}")
-            log.error(f"ID: {id} -> data: {data}")
+            log.debug(f"ID: {id} -> url: {url}")
+            log.debug(f"ID: {id} -> data: {data}")
 
             return False
 
