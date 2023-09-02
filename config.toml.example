@@ -57,7 +57,7 @@ time = ''
 enable = false
 time = ''
 time_sleep = 1
-path = '/root/go/bin'
+path = '/app/bin/'
 
 #exemple
 #[proposal.network.Stargaze]
