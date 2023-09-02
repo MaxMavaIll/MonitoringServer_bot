@@ -5,3 +5,4 @@ Grafana/
 .save
 Nodes/Vote
 docker-compose.yml
+bin/
