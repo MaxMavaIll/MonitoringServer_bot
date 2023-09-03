@@ -6,3 +6,4 @@ Grafana/
 Nodes/Vote
 docker-compose.yml
 bin/
+id.json

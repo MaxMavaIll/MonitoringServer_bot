@@ -136,7 +136,7 @@ class Proposal:
             if output[0].decode('utf-8') != '':
                 return { 'ok': True, 'answer': output[0].decode('utf-8')}
             elif output[1].decode('utf-8') != '':
-                return { 'ok': False, 'answer': output[1].decode('utf-8')}
+                return { 'ok': False, 'answer': output[1].decode('utf-8')[1:200]+"\n\n"}
             
             return output
         except:
