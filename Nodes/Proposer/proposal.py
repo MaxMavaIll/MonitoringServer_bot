@@ -100,13 +100,26 @@ class Proposal:
 
     def create_text(self, proposal_id: int, data: dict):
         explorer_url = config_toml['proposal']['network'][self.name_network]["explorer"]
-        message = f"🔥 {self.name_network} - Proposal {proposal_id} 🔥\n<b>{data['content']['title']}</b> \n\n" + \
-                f"Start_Voting:\n\t\t{data['voting_start_time']}\n" + \
-                f"End_Voting:\n\t\t{data['voting_end_time']}"
 
-        if data["content"].get('plan') is not None:
-            message += f"\n\n<b>*--*UPGRADE*--*</b>\n\nHEIGHT: {data['content']['plan']['height']}\n" + \
-                    f"Name: {data['content']['plan']['name']}"
+        key = "messages"
+
+        # for key in keys:
+        if data.get(key):
+            message = f"🔥 {self.name_network} - Proposal {proposal_id} 🔥\n<b>{data[key]['content']['title']}</b> \n\n" + \
+                    f"Start_Voting:\n\t\t{data['voting_start_time']}\n" + \
+                    f"End_Voting:\n\t\t{data['voting_end_time']}"
+
+            if data["content"].get('plan'):
+                message += f"\n\n<b>*--*UPGRADE*--*</b>\n\nHEIGHT: {data[key]['content']['plan']['height']}\n" + \
+                        f"Name: {data[key]['content']['plan']['name']}"
+            
+        else:
+
+            message = f"🔥 {self.name_network} - Proposal {proposal_id} 🔥\n<b>{data['content']['title']}</b> \n\n" + \
+                            f"Start_Voting:\n\t\t{data['voting_start_time']}\n" + \
+                            f"End_Voting:\n\t\t{data['voting_end_time']}"
+
+            
 
         if explorer_url != '':
             message += f"\n\n{explorer_url}{proposal_id}" 
@@ -136,7 +149,7 @@ class Proposal:
             if output[0].decode('utf-8') != '':
                 return { 'ok': True, 'answer': output[0].decode('utf-8')}
             elif output[1].decode('utf-8') != '':
-                return { 'ok': False, 'answer': output[1].decode('utf-8')[1:200]+"\n\n"}
+                return { 'ok': False, 'answer': output[1].decode('utf-8')[0:200]+"\n\n"}
             
             return output
         except:
