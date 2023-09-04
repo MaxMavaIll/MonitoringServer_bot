@@ -71,7 +71,7 @@ class Proposal:
         if ids != {}:
             if config_toml['telegram_bot']['enable']:
                 for id in config_toml['telegram_bot']['chat_id']:
-                    telegram_bot.send_message(message="🟩 NEW Proposals 🟩", chat_id=id, )
+                    telegram_bot.send_message(message="🟩 NEW Proposals 🟩", chat_id=id, type_bot_token="TOKEN_PROPOSALS")
 
         return ids.items()
     
@@ -101,23 +101,27 @@ class Proposal:
     def create_text(self, proposal_id: int, data: dict):
         explorer_url = config_toml['proposal']['network'][self.name_network]["explorer"]
 
-        key = "messages"
+        key = 'messages'
 
         # for key in keys:
         if data.get(key):
-            message = f"🔥 {self.name_network} - Proposal {proposal_id} 🔥\n<b>{data[key]['content']['title']}</b> \n\n" + \
+            message = f"🔥 {self.name_network} - Proposal {proposal_id} 🔥\n<b>{data[key][0]['content']['title']}</b> \n\n" + \
                     f"Start_Voting:\n\t\t{data['voting_start_time']}\n" + \
                     f"End_Voting:\n\t\t{data['voting_end_time']}"
 
-            if data["content"].get('plan'):
-                message += f"\n\n<b>*--*UPGRADE*--*</b>\n\nHEIGHT: {data[key]['content']['plan']['height']}\n" + \
-                        f"Name: {data[key]['content']['plan']['name']}"
+            if data[key][0]["content"].get('plan'):
+                message += f"\n\n<b>*--*UPGRADE*--*</b>\n\nHEIGHT: {data[key][0]['content']['plan']['height']}\n" + \
+                        f"Name: {data[key][0]['content']['plan']['name']}"
             
         else:
 
             message = f"🔥 {self.name_network} - Proposal {proposal_id} 🔥\n<b>{data['content']['title']}</b> \n\n" + \
                             f"Start_Voting:\n\t\t{data['voting_start_time']}\n" + \
                             f"End_Voting:\n\t\t{data['voting_end_time']}"
+            
+            if data["content"].get('plan'):
+                message += f"\n\n<b>*--*UPGRADE*--*</b>\n\nHEIGHT: {data['content']['plan']['height']}\n" + \
+                        f"Name: {data['content']['plan']['name']}"
 
             
 
