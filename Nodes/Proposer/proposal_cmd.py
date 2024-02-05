@@ -122,12 +122,15 @@ class Proposal:
             message = f"🔥 {self.name_network} - Proposal {proposal_id} 🔥\n"
             if data[key][0].get('content'):
                 message += f"<b>{data[key][0]['content']['title']}</b> \n\n"
+                
+                if data[key][0]["content"].get('plan'):
+                    message += f"\n\n<b>*--*UPGRADE*--*</b>\n\nHEIGHT: {data[key][0]['content']['plan']['height']}\n" + \
+                            f"Name: {data[key][0]['content']['plan']['name']}"
+            
             message += f"Start_Voting:\n\t\t{data['voting_start_time']}\n" 
             message += f"End_Voting:\n\t\t{data['voting_end_time']}"
 
-            if data[key][0]["content"].get('plan'):
-                message += f"\n\n<b>*--*UPGRADE*--*</b>\n\nHEIGHT: {data[key][0]['content']['plan']['height']}\n" + \
-                        f"Name: {data[key][0]['content']['plan']['name']}"
+            
             
         else:
 
