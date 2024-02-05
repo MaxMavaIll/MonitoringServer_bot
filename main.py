@@ -1,24 +1,38 @@
-import logging, toml, time, json
+import logging
+import toml
+import time
+import json
+import asyncio
+
 from logging.handlers import RotatingFileHandler
 
 import function
 from Server.server import check_server
 # from Nodes.Vote.CosmosCLI import Vote_Active_Proposal
-from Nodes.Proposer.proposal import Proposer
+from Nodes.Proposer.proposal_cmd import Proposer
 from WorkJson import WorkWithJson
 
 config_toml = toml.load('config.toml')
 work_json = WorkWithJson('id.json')
 
-log = logging.getLogger('main')
-log.setLevel(logging.INFO)
-handler2 = RotatingFileHandler(f"logs/main.log", maxBytes=config_toml['logging']['max_log_size'] * 1024 * 1024, backupCount=config_toml['logging']['backup_count'])
-formatter2 = logging.Formatter("%(name)s %(asctime)s %(levelname)s %(message)s")
-handler2.setFormatter(formatter2)
-log.addHandler(handler2)
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
-logging.basicConfig(level=logging.INFO, format="%(name)s %(asctime)s %(levelname)s %(message)s")
-logging.getLogger
+log_s = logging.StreamHandler()
+log_s.setLevel(logging.INFO)
+formatter2 = logging.Formatter(
+    "%(name)s %(asctime)s %(levelname)s %(message)s")
+log_s.setFormatter(formatter2)
+
+log_f = RotatingFileHandler(
+    f"logs/main.log",maxBytes=config_toml['logging']['max_log_size'] * 1024 * 1024, backupCount=config_toml['logging']['backup_count'])
+log_f.setLevel(logging.DEBUG)
+formatter2 = logging.Formatter(
+    "%(name)s %(asctime)s %(levelname)s %(message)s")
+log_f.setFormatter(formatter2)
+
+log.addHandler(log_s)
+log.addHandler(log_f)
 
 
 def main():
