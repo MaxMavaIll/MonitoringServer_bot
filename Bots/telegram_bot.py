@@ -1,4 +1,4 @@
-import requests, toml, logging, json
+import requests, toml, logging, json, re
 from logging.handlers import RotatingFileHandler
 
 from WorkJson import WorkWithJson
@@ -15,6 +15,20 @@ log.addHandler(handler2)
 
 class BotTelegram():
 
+    def escape_unintended_html_tags(self, text):
+    # Розбираємо текст, використовуючи HTML теги та замінюємо тільки випадки не в тегах
+        def replace_invalid(match):
+            tag, lt, gt = match.groups()
+            if tag:  # Якщо це тег, то повертаємо як є
+                return tag
+            elif lt:  # Якщо це < не у тегу, замінюємо
+                return '&lt;'
+            elif gt:  # Якщо це > не у тегу, замінюємо
+                return '&gt;'
+            
+        # Паттерн знаходить теги, а також окремі < і >
+        pattern = re.compile(r'(</?b>)|(<)|(>)')
+        return re.sub(pattern, replace_invalid, text)
 
     def send_message(self, message: str, chat_id: int|str, type_bot_token: str = "TOKEN"):
         """
@@ -26,6 +40,7 @@ class BotTelegram():
         id = work_json.get_json()["id"]
         url = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
         # url = url + f'/sendMessage?chat_id={chat_id}&text={message}'
+        message = self.escape_unintended_html_tags(message)
         data = {'chat_id': chat_id, 'text': message, 'parse_mode': 'HTML'}
         
         response = requests.post(url=url, data=data, timeout=5)

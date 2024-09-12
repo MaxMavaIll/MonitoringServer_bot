@@ -61,6 +61,11 @@ path = '/app/bin/'
 
 #exemple
 #[proposal.network.Stargaze]
+$rest=http://localhost:1317
+#explorer="https://www.mintscan.io/stargaze/proposals/"
+
+enable_cmd = false
 #bin="starsd"
 #node="https://stargaze-rpc.polkachu.com:443"
-#explorer="https://www.mintscan.io/stargaze/proposals/"
+
+1

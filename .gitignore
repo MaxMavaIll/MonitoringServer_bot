@@ -1,9 +1,10 @@
 config.toml
 __pycache__/
-venv/
+.venv/
 Grafana/
 .save
 Nodes/Vote
 docker-compose.yml
 bin/
 id.json
+test.py

@@ -115,34 +115,36 @@ class Proposal:
     def create_text(self, proposal_id: int, data: dict):
         explorer_url = config_toml['proposal']['network'][self.name_network]["explorer"]
 
-        key = 'messages'
+        message = f"🔥 {self.name_network} - Proposal {proposal_id} 🔥"
+        check_message = data.get('messages')
+        check_content = data.get('content')
+        # check_summary = data.get('summary')
+        
+        
 
-        # for key in keys:
-        if data.get(key):
-            message = f"🔥 {self.name_network} - Proposal {proposal_id} 🔥\n"
-            if data[key][0].get('content'):
-                message += f"<b>{data[key][0]['content']['title']}</b> \n\n"
-                
-                if data[key][0]["content"].get('plan'):
-                    message += f"\n\n<b>*--*UPGRADE*--*</b>\n\nHEIGHT: {data[key][0]['content']['plan']['height']}\n" + \
-                            f"Name: {data[key][0]['content']['plan']['name']}"
-            
-            message += f"Start_Voting:\n\t\t{data['voting_start_time']}\n" 
-            message += f"End_Voting:\n\t\t{data['voting_end_time']}"
+        log.info(f"ID: {self.log_id} {self.name_network} | DATA -> {data}") 
 
-            
-            
-        else:
+        title = data.get('title')
+        start_time = data.get('voting_start_time')
+        end_time = data.get('voting_end_time')
 
-            message = f"🔥 {self.name_network} - Proposal {proposal_id} 🔥\n<b>{data['content']['title']}</b> \n\n" + \
-                            f"Start_Voting:\n\t\t{data['voting_start_time']}\n" + \
-                            f"End_Voting:\n\t\t{data['voting_end_time']}"
+        if check_message:
+            message_data = check_message[0]
             
-            if data["content"].get('plan'):
-                message += f"\n\n<b>*--*UPGRADE*--*</b>\n\nHEIGHT: {data['content']['plan']['height']}\n" + \
-                        f"Name: {data['content']['plan']['name']}"
+            # Check for upgrade plan and append if exists
+            if message_data.get('content'):  
+                title = message_data['content'].get('title')
+                if message_data['content'].get('plan'):
+                    plan = message_data['content']['plan']
+                    message += f"\n\n<b>*--*UPGRADE*--*</b>\n\nHEIGHT: {plan['height']}\nName: {plan['name']}"
 
-            
+        elif check_content:
+            title =  check_content.get('title')
+
+        
+
+        # Construct the main message
+        message += f"\n<b>{title}</b>\n\nStart_Voting:\n\t\t{start_time}\nEnd_Voting:\n\t\t{end_time}"  
 
         if explorer_url != '':
             message += f"\n\n{explorer_url}{proposal_id}" 
@@ -186,39 +188,40 @@ class Proposal:
             return {'ok': False, 'answer': "Проблима з бінарником термінал не зміг знайти щось на сервері"}
     
 
-def Proposer():
+def Proposer(
+        network_name: str, 
+        network: dict):
     log_id = work_json_id.get_json()['id']
-    for network in config_toml['proposal']['network']:
-        try:
-            proposer = Proposal(
-                log_id=log_id,
-                bin=config_toml['proposal']['network'][network]["bin"],
-                name_network=network,
-                node=config_toml['proposal']['network'][network]["node"]
-            )
+    try:
+        proposer = Proposal(
+            log_id=log_id,
+            bin=config_toml['proposal']['network'][network]["bin"],
+            name_network=network,
+            node=config_toml['proposal']['network'][network]["node"]
+        )
 
-            for proposal_id, data in proposer.GetNewProposals(
-                status="PROPOSAL_STATUS_VOTING_PERIOD",
-                limit=20
-                ):
+        for proposal_id, data in proposer.GetNewProposals(
+            status="PROPOSAL_STATUS_VOTING_PERIOD",
+            limit=20
+            ):
 
-                
-                if config_toml['telegram_bot']['enable']:
-                    message = proposer.create_text(proposal_id=proposal_id, data=data)
-                    for id in config_toml['telegram_bot']['chat_id']:
-                        if telegram_bot.send_message(message=message, chat_id=id, type_bot_token="TOKEN_PROPOSALS"):
-                            data = work_json.get_json()
-                            data[id][network].append(proposal_id)
-                            
-                    data[id][network] = sorted(data[id][network], reverse=True)
-                    work_json.set_json(data=data)
-                    time.sleep(config_toml['proposal']['time_sleep'])
-
-        except Exception as e:
-            message = f"<b>Proposer\nlog_id: {log_id}</b> \n\n "
-            message += traceback.format_exc()
-            log.exception(f"Proposer:")
             
             if config_toml['telegram_bot']['enable']:
+                message = proposer.create_text(proposal_id=proposal_id, data=data)
                 for id in config_toml['telegram_bot']['chat_id']:
-                            telegram_bot.send_message(message=message, chat_id=id, type_bot_token="TOKEN_ERROR")
+                    if telegram_bot.send_message(message=message, chat_id=id, type_bot_token="TOKEN_PROPOSALS"):
+                        data = work_json.get_json()
+                        data[id][network].append(proposal_id)
+                        
+                data[id][network] = sorted(data[id][network], reverse=True)
+                work_json.set_json(data=data)
+                time.sleep(config_toml['proposal']['time_sleep'])
+
+    except Exception as e:
+        message = f"<b>Proposer\nlog_id: {log_id}</b> \n\n "
+        message += traceback.format_exc()
+        log.exception(f"Proposer:")
+        
+        if config_toml['telegram_bot']['enable']:
+            for id in config_toml['telegram_bot']['chat_id']:
+                        telegram_bot.send_message(message=message, chat_id=id, type_bot_token="TOKEN_ERROR")

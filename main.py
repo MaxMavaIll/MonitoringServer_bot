@@ -9,7 +9,8 @@ from logging.handlers import RotatingFileHandler
 import function
 from Server.server import check_server
 # from Nodes.Vote.CosmosCLI import Vote_Active_Proposal
-from Nodes.Proposer.proposal_cmd import Proposer
+from Nodes.Proposer.proposal_cmd import Proposer as cmd_proposer
+from Nodes.Proposer.proposal_url import Proposer as api_proposer
 from WorkJson import WorkWithJson
 
 config_toml = toml.load('config.toml')
@@ -47,7 +48,13 @@ def main():
             check_server()
         
         if config_toml['proposal']['enable'] and function.runtime_check(config_toml['proposal']['time'], 'Proposal', ID):
-            Proposer()
+            for network_name, network in config_toml['proposal']['network'].items():
+                if config_toml['proposal']['network'][network_name]['enable_cmd']:
+                    cmd_proposer(network_name, network)
+                    continue
+                
+                api_proposer(network_name, network)
+                
 
         # if config_toml['vote']['enable']:
         #     Vote_Active_Proposal()
